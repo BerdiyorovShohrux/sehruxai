@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FaceIO Auth</title>
+</head>
+<body>
+  <h1>faceIO bilan tizimga kirish</h1>
+
+  <button onclick="enrollUser()">Ro'yxatdan o'tish (Yuzni saqlash)</button>
+  <button onclick="authenticateUser()">Tizimga kirish (Yuz bilan)</button>
+
+  <script src="https://cdn.faceio.net/fio.js"></script>
+  <script>
+    const faceio = new faceIO("YOUR_PUBLIC_API_KEY"); // Bu yerga o'z API KEY'ingni yoz!
+
+    function enrollUser() {
+      faceio.enroll({
+        locale: "auto", // Yoki "en", "ru", "uz" va hokazo
+        payload: {
+          // Foydalanuvchi haqida qo‘shimcha info
+          name: "Shohrux",
+          email: "shohrux@example.com",
+          userId: "user-001"
+        }
+      }).then(userInfo => {
+        alert("Ro'yxatdan o'tish muvaffaqiyatli! 👌");
+        console.log("User Info:", userInfo);
+      }).catch(err => {
+        handleError(err);
+      });
+    }
+
+    function authenticateUser() {
+      faceio.authenticate({
+        locale: "auto"
+      }).then(userInfo => {
+        alert("Xush kelibsiz, " + userInfo.payload.name + " 😎");
+        console.log("User Info:", userInfo);
+      }).catch(err => {
+        handleError(err);
+      });
+    }
+
+    function handleError(err) {
+      console.error("faceIO xatosi:", err);
+
+      switch (err.code) {
+        case fioErrCode.PERMISSION_REFUSED:
+          alert("Kameraga ruxsat berilmadi.");
+          break;
+        case fioErrCode.NO_FACES_DETECTED:
+          alert("Yuz aniqlanmadi.");
+          break;
+        case fioErrCode.UNRECOGNIZED_FACE:
+          alert("Yuz tanilmadi.");
+          break;
+        case fioErrCode.FACE_DUPLICATION:
+          alert("Bu yuz allaqachon ro'yxatdan o'tgan.");
+          break;
+        case fioErrCode.PROCESSING_ERR:
+          alert("Serverda muammo yuz berdi.");
+          break;
+        case fioErrCode.NETWORK_IO:
+          alert("Internetga ulanib bo‘lmadi.");
+          break;
+        default:
+          alert("Noma’lum xatolik yuz berdi.");
+      }
+    }
+  </script>
+</body>
+</html>
